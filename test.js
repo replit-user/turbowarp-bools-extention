@@ -69,7 +69,13 @@ class BoolExtension {
                     defaultValue:'flag'
                 }
             }
-        }
+        },
+        {
+    opcode: 'listBools',
+    blockType: Scratch.BlockType.REPORTER,
+    text: 'all bools'
+}
+
       ]
     };
   }
@@ -98,7 +104,12 @@ class BoolExtension {
   const current = Boolean(this.variables[args.BOOL_VAR]);
   this.variables[args.BOOL_VAR] = !current;
 }
+  listBools() {
+    return Object.keys(this.variables).join(', ');
+}
+
 
 }
 
 Scratch.extensions.register(new BoolExtension());
+
