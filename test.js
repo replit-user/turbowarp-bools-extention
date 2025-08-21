@@ -1,15 +1,16 @@
 class BoolExtension {
     constructor(runtime) {
         this.runtime = runtime; // store runtime for variable access
+        this.boolNames = new Set(); // track all boolean variable names
     }
 
     getInfo() {
         return {
             id: 'boolext',
             name: 'Bools',
-            color1: '#2e577eff', // lighter blue
-            color2: '#0d67c2ff', // slightly darker border
-            color3: '#033f77ff', // highlight
+            color1: '#2e577eff',
+            color2: '#0d67c2ff',
+            color3: '#033f77ff',
             blocks: [
                 {
                     opcode: 'trueBlock',
@@ -69,6 +70,17 @@ class BoolExtension {
                             defaultValue: 'flag'
                         }
                     }
+                },
+                '---',
+                {
+                    opcode: 'listAllBools',
+                    blockType: Scratch.BlockType.REPORTER,
+                    text: 'all bools'
+                },
+                {
+                    opcode: 'resetAllBools',
+                    blockType: Scratch.BlockType.COMMAND,
+                    text: 'reset all bools'
                 }
             ]
         };
@@ -79,24 +91,19 @@ class BoolExtension {
         const target = this.runtime.getTargetForStage();
         let variable = target.lookupVariableByNameAndType(name, '');
         if (!variable) {
-            variable = target.createVariable(name, '', false); // false = not cloud
+            variable = target.createVariable(name, '', false); // not cloud
         }
+        // track boolean variable names
+        this.boolNames.add(name);
         return variable;
     }
 
-    // boolean literal blocks
-    trueBlock() {
-        return true;
-    }
-
-    falseBlock() {
-        return false;
-    }
+    // boolean literals
+    trueBlock() { return true; }
+    falseBlock() { return false; }
 
     // logical NOT
-    notBlock(args) {
-        return !args.VALUE;
-    }
+    notBlock(args) { return !args.VALUE; }
 
     // set a Scratch project variable to a boolean value
     setBool(args) {
@@ -114,6 +121,20 @@ class BoolExtension {
     ToggleBoolVar(args) {
         const variable = this.getProjectVariable(args.BOOL_VAR);
         variable.value = !Boolean(variable.value);
+    }
+
+    // list all boolean variables tracked by this extension
+    listAllBools() {
+        return Array.from(this.boolNames).join(', ');
+    }
+
+    // reset all tracked boolean variables to false
+    resetAllBools() {
+        const target = this.runtime.getTargetForStage();
+        this.boolNames.forEach(name => {
+            const variable = target.lookupVariableByNameAndType(name, '');
+            if (variable) variable.value = false;
+        });
     }
 }
 
