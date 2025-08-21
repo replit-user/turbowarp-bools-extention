@@ -1,16 +1,16 @@
 class BoolExtension {
     constructor(runtime) {
-        this.runtime = runtime; // store runtime for variable access
-        this.boolvarnames = {}
+        this.runtime = runtime;
+        this.boolvarnames = {};
     }
 
     getInfo() {
         return {
             id: 'boolext',
             name: 'Bools',
-            color1: '#2e577eff', // lighter blue
-            color2: '#0d67c2ff', // slightly darker border
-            color3: '#033f77ff', // highlight
+            color1: '#2e577eff',
+            color2: '#0d67c2ff',
+            color3: '#033f77ff',
             blocks: [
                 {
                     opcode: 'trueBlock',
@@ -73,7 +73,7 @@ class BoolExtension {
                 },
                 {
                     opcode: "ListBool",
-                    blockType: Scratch.BlockType.COMMAND,
+                    blockType: Scratch.BlockType.REPORTER,
                     text: 'list all'
                 },
                 {
@@ -85,59 +85,36 @@ class BoolExtension {
         };
     }
 
-    // helper: get or create a Scratch variable by name
-    getProjectVariable(name) {
-        const target = this.runtime.getTargetForStage();
-        let variable = target.lookupVariableByNameAndType(name, '');
-        if (!variable) {
-            variable = target.createVariable(name, '', false); // false = not cloud
-        }
-        return variable;
-    }
+    // literal booleans
+    trueBlock() { return true; }
+    falseBlock() { return false; }
 
-    // boolean literal blocks
-    trueBlock() {
-        return true;
-    }
-
-    falseBlock() {
-        return false;
-    }
-
-    // logical NOT
     notBlock(args) {
         return !args.VALUE;
     }
 
-    // set a Scratch project variable to a boolean value
     setBool(args) {
-        const variable = this.getProjectVariable(args.NAME);
-        variable.value = Boolean(args.VALUE);
-        this.boolvarnames[args.NAME] = variable.value;
+        this.boolvarnames[args.NAME] = Boolean(args.VALUE);
     }
 
-    // read a Scratch project variable as boolean
     getBool(args) {
-        const variable = this.getProjectVariable(args.NAME);
-        return Boolean(variable.value);
+        // Return false if the variable doesn't exist
+        if (this.boolvarnames[args.NAME] === undefined) {
+            return false;
+        }
+        return Boolean(this.boolvarnames[args.NAME]);
     }
 
-    // toggle a Scratch project variable
     ToggleBoolVar(args) {
-        const variable = this.getProjectVariable(args.BOOL_VAR);
-        variable.value = !Boolean(variable.value);
+        this.boolvarnames[args.BOOL_VAR] = !this.boolvarnames[args.BOOL_VAR];
     }
-    ListBool(args){
-        bools = [];
-        for(let name of this.boolvarnames){
-            bools[name] = this.boolvarnames[name];
-        }
-        return bools;
+
+    ListBool() {
+        return JSON.stringify(this.boolvarnames);
     }
-    ResetBool(args){
-        for(let flag of this.boolvarnames){
-            this.boolvarnames[flag] = undefined;
-        }
+
+    ResetBool() {
+        this.boolvarnames = {};
     }
 }
 
