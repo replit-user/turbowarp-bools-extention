@@ -1,6 +1,7 @@
 class BoolExtension {
     constructor(runtime) {
         this.runtime = runtime; // store runtime for variable access
+        this.boolvarnames = {}
     }
 
     getInfo() {
@@ -69,6 +70,16 @@ class BoolExtension {
                             defaultValue: 'flag'
                         }
                     }
+                },
+                {
+                    opcode: "ListBool",
+                    blockType: Scratch.BlockType.COMMAND,
+                    text: 'list all'
+                },
+                {
+                    opcode: "ResetBool",
+                    blockType: Scratch.BlockType.COMMAND,
+                    text: 'reset all'
                 }
             ]
         };
@@ -102,6 +113,7 @@ class BoolExtension {
     setBool(args) {
         const variable = this.getProjectVariable(args.NAME);
         variable.value = Boolean(args.VALUE);
+        this.boolvarnames[args.NAME] = variable.value;
     }
 
     // read a Scratch project variable as boolean
@@ -114,6 +126,18 @@ class BoolExtension {
     ToggleBoolVar(args) {
         const variable = this.getProjectVariable(args.BOOL_VAR);
         variable.value = !Boolean(variable.value);
+    }
+    ListBool(args){
+        bools = [];
+        for(let name of this.boolvarnames){
+            bools[name] = this.boolvarnames[name];
+        }
+        return bools;
+    }
+    ResetBool(args){
+        for(let flag of this.boolvarnames){
+            this.boolvarnames[flag] = undefined;
+        }
     }
 }
 
